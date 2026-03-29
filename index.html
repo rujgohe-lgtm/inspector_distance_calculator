@@ -158,6 +158,7 @@
                             3. จุดงานก่อสร้าง (กำหนดวันที่แยกได้)
                         </h2>
                     </div>
+                    <p class="text-[10px] text-red-500 mb-2">*ระบบจะคำนวณระยะทางเดินทางไป-กลับ 2 รอบ/วัน (เช้า-บ่าย) ให้อัตโนมัติ</p>
                     
                     <div id="sitesContainer" class="space-y-4 max-h-[450px] overflow-y-auto custom-scrollbar pr-1">
                         <!-- Sites injected here -->
@@ -260,7 +261,7 @@
                     <div id="tab2" class="hidden print-break-inside-avoid print:mt-8">
                         <div class="print-only hidden p-3 bg-gray-100 font-bold border-b border-t mt-4">ตารางที่ 2: รายละเอียดระยะทางแยกตามจุดปฏิบัติงาน (ไป-กลับ สำนักงาน)</div>
                         <div class="p-3 bg-blue-50 text-blue-800 text-xs border-b border-blue-100 no-print">
-                            * ระยะทางในตารางนี้คำนวณแบบ <b>ไป-กลับจากสำนักงานโดยตรง (Direct Route)</b> เพื่อให้เห็นสัดส่วนของแต่ละจุดอย่างชัดเจน
+                            * ระยะทางในตารางนี้คำนวณแบบ <b>ไป-กลับจากสำนักงานโดยตรง 2 รอบ/วัน (เช้า-บ่าย)</b> เพื่อให้เห็นสัดส่วนของแต่ละจุดอย่างชัดเจน
                         </div>
                         <div class="overflow-x-auto pb-4">
                             <table class="w-full text-sm text-left text-gray-600 whitespace-nowrap">
@@ -664,7 +665,8 @@
                 for (const day of dailyData) {
                     if(!monthlySummary[day.monthKey]) monthlySummary[day.monthKey] = { days: 0, distance: 0, coordAdded: false };
                     monthlySummary[day.monthKey].days += 1;
-                    monthlySummary[day.monthKey].distance += routeDistanceCache[day.activeKey];
+                    // คูณ 2 สำหรับการเดินทางไปหน้างาน 2 รอบต่อวัน (เช้า-บ่าย)
+                    monthlySummary[day.monthKey].distance += (routeDistanceCache[day.activeKey] * 2);
                 }
 
                 // กรณีไม่มีหน้างาน มีแต่จุดประสานงาน (สร้างเดือนหลอกๆ ให้ 1 เดือนปัจจุบัน)
@@ -739,7 +741,8 @@
                         const time = currDate.getTime();
                         const activeSites = sitesData.filter(s => time >= s.start && time <= s.end);
                         const mKey = `${currDate.getFullYear()}-${String(currDate.getMonth() + 1).padStart(2, '0')}`;
-                        if (monthlySummary[mKey]) activeSites.forEach(s => siteStats[s.id].months[mKey].dist += s.roundTripDist);
+                        // คูณ 2 สำหรับการเดินทางไปหน้างาน 2 รอบต่อวัน (เช้า-บ่าย)
+                        if (monthlySummary[mKey]) activeSites.forEach(s => siteStats[s.id].months[mKey].dist += (s.roundTripDist * 2));
                         currDate.setDate(currDate.getDate() + 1);
                     }
                 }
