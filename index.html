@@ -711,9 +711,8 @@
                 document.getElementById('sumTotalDist').innerText = totalProjectDist.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
                 document.getElementById('sumTotalFuel').innerText = totalProjectFuel.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
                 
-                // คำนวณค่าเฉลี่ยน้ำมันต่อเดือน
-                const monthCount = sortedMonths.length;
-                const avgFuel = monthCount > 0 ? totalProjectFuel / monthCount : 0;
+                // คำนวณค่าเฉลี่ยน้ำมันต่อเดือน (สูตรใหม่: ปริมาณน้ำมันทั้งสัญญา / จำนวนวันทั้งสัญญา * 30)
+                const avgFuel = totalProjectDays > 0 ? (totalProjectFuel / totalProjectDays) * 30 : 0;
                 document.getElementById('sumAvgFuel').innerText = avgFuel.toLocaleString(undefined, {minimumFractionDigits:2, maximumFractionDigits:2});
 
                 // ตารางที่ 2 แยกรายจุด
