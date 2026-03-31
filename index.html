@@ -20,6 +20,27 @@
         .custom-scrollbar::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 4px;}
         .custom-scrollbar::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 4px;}
         
+        /* สไตล์สำหรับหมุดแผนที่ที่มีตัวเลข */
+        .custom-leaflet-icon {
+            background: transparent !important;
+            border: none !important;
+        }
+        .marker-pin-numbered {
+            width: 25px;
+            height: 41px;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            padding-top: 5px;
+            color: white;
+            font-weight: 700;
+            font-size: 11px;
+            font-family: 'Sarabun', sans-serif;
+            text-shadow: 0px 0px 2px #000, 1px 1px 2px rgba(0,0,0,0.8);
+            background-size: contain;
+            background-repeat: no-repeat;
+        }
+
         /* สไตล์เฉพาะสำหรับการพิมพ์ (Print) */
         @media print {
             @page { size: A4 landscape; margin: 10mm; }
@@ -156,9 +177,12 @@
                 <!-- Section 2: Construction Sites -->
                 <div class="bg-white p-5 rounded-xl shadow-sm border border-gray-200">
                     <div class="flex justify-between items-center mb-3">
-                        <h2 class="text-lg font-semibold text-gray-700 flex items-center">
-                            <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
-                            3. จุดงานก่อสร้าง (อ้างอิงลำดับเดือนตามสัญญา)
+                        <h2 class="text-lg font-semibold text-gray-700 flex flex-wrap items-center gap-2">
+                            <div class="flex items-center">
+                                <svg class="w-5 h-5 mr-2 text-red-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"></path></svg>
+                                3. จุดงานก่อสร้าง (อ้างอิงลำดับเดือนตามสัญญา)
+                            </div>
+                            <span id="totalSiteDuration" class="text-sm font-medium text-blue-700 bg-blue-50 px-2 py-1 rounded-md border border-blue-100 hidden">(ระยะเวลาสัญญาโครงการรวม: 0 วัน)</span>
                         </h2>
                     </div>
                     <p class="text-[10px] text-red-500 mb-2">*ระบบจะนำจุดที่ทำงานในช่วงเดือนเดียวกันมาสร้างเส้นทางร่วมกัน และคำนวณไป-กลับ <b>2 รอบ/วัน (เช้า-บ่าย)</b> ให้อัตโนมัติ</p>
@@ -391,61 +415,61 @@
 
         // พิกัดจุดประสานงาน (รวม 50 เขต กทม. อ้างอิงจากตัวอาคารสำนักงานเขตโดยตรง)
         const coordPlaces = {
-            yota: { lat: 13.764531, lng: 100.553944, name: "สำนักการโยธา กทม. (ดินแดง)" },
-            nonthaburi: { lat: 13.860163, lng: 100.514413, name: "ศาลากลางจังหวัดนนทบุรี" },
-            samutprakan: { lat: 13.595679, lng: 100.597116, name: "ศาลากลางจังหวัดสมุทรปราการ" },
+            yota: { lat: 13.771289460536128, lng: 100.5556805676979, name: "สำนักการโยธา กทม. (ดินแดง)" },
+            nonthaburi: { lat: 13.862573180721634, lng: 100.51329956349889, name: "ศาลากลางจังหวัดนนทบุรี" },
+            samutprakan: { lat: 13.600606146534474, lng: 100.59713603835813, name: "ศาลากลางจังหวัดสมุทรปราการ" },
             
             // 50 เขต กทม.
-            k_khlongsan: { lat: 13.730104, lng: 100.508822, name: "สำนักงานเขตคลองสาน" },
-            k_khlongtoei: { lat: 13.713880, lng: 100.583584, name: "สำนักงานเขตคลองเตย" },
-            k_khlongsamwa: { lat: 13.859664, lng: 100.704044, name: "สำนักงานเขตคลองสามวา" },
-            k_khannayao: { lat: 13.827103, lng: 100.674341, name: "สำนักงานเขตคันนายาว" },
-            k_chatuchak: { lat: 13.828628, lng: 100.559929, name: "สำนักงานเขตจตุจักร" },
-            k_chomthong: { lat: 13.677273, lng: 100.463641, name: "สำนักงานเขตจอมทอง" },
-            k_donmueang: { lat: 13.913619, lng: 100.589849, name: "สำนักงานเขตดอนเมือง" },
-            k_dindaeng: { lat: 13.766345, lng: 100.553250, name: "สำนักงานเขตดินแดง" },
-            k_dusit: { lat: 13.776663, lng: 100.522967, name: "สำนักงานเขตดุสิต" },
-            k_talingchan: { lat: 13.776939, lng: 100.456641, name: "สำนักงานเขตตลิ่งชัน" },
-            k_thawiwatthana: { lat: 13.787680, lng: 100.363659, name: "สำนักงานเขตทวีวัฒนา" },
-            k_thungkhru: { lat: 13.647376, lng: 100.495818, name: "สำนักงานเขตทุ่งครุ" },
-            k_thonburi: { lat: 13.725132, lng: 100.485601, name: "สำนักงานเขตธนบุรี" },
-            k_bangkoknoi: { lat: 13.761921, lng: 100.476214, name: "สำนักงานเขตบางกอกน้อย" },
-            k_bangkokyai: { lat: 13.722744, lng: 100.476426, name: "สำนักงานเขตบางกอกใหญ่" },
-            k_bangkapi: { lat: 13.765872, lng: 100.647617, name: "สำนักงานเขตบางกะปิ" },
-            k_bangkhunthian: { lat: 13.660803, lng: 100.435745, name: "สำนักงานเขตบางขุนเทียน" },
-            k_bangkhen: { lat: 13.873516, lng: 100.596324, name: "สำนักงานเขตบางเขน" },
-            k_bangkho_laem: { lat: 13.693356, lng: 100.502447, name: "สำนักงานเขตบางคอแหลม" },
-            k_bangkae: { lat: 13.696144, lng: 100.398642, name: "สำนักงานเขตบางแค" },
-            k_bangsue: { lat: 13.823157, lng: 100.531011, name: "สำนักงานเขตบางซื่อ" },
-            k_bangna: { lat: 13.674063, lng: 100.606825, name: "สำนักงานเขตบางนา" },
-            k_bangbon: { lat: 13.659223, lng: 100.399131, name: "สำนักงานเขตบางบอน" },
-            k_bangphlat: { lat: 13.793664, lng: 100.493466, name: "สำนักงานเขตบางพลัด" },
-            k_bangrak: { lat: 13.730822, lng: 100.523910, name: "สำนักงานเขตบางรัก" },
-            k_buengkum: { lat: 13.785312, lng: 100.669041, name: "สำนักงานเขตบึงกุ่ม" },
-            k_pathumwan: { lat: 13.736014, lng: 100.524458, name: "สำนักงานเขตปทุมวัน" },
-            k_prawet: { lat: 13.716131, lng: 100.694702, name: "สำนักงานเขตประเวศ" },
-            k_pomprapsattruphai: { lat: 13.758117, lng: 100.512999, name: "สำนักงานเขตป้อมปราบศัตรูพ่าย" },
-            k_phayathai: { lat: 13.780055, lng: 100.542749, name: "สำนักงานเขตพญาไท" },
-            k_phrakhanong: { lat: 13.702213, lng: 100.601570, name: "สำนักงานเขตพระโขนง" },
-            k_phranakhon: { lat: 13.764516, lng: 100.499182, name: "สำนักงานเขตพระนคร" },
-            k_phasicharoen: { lat: 13.714415, lng: 100.437243, name: "สำนักงานเขตภาษีเจริญ" },
-            k_minburi: { lat: 13.813955, lng: 100.748057, name: "สำนักงานเขตมีนบุรี" },
-            k_yannawa: { lat: 13.696954, lng: 100.543026, name: "สำนักงานเขตยานนาวา" },
-            k_ratchathewi: { lat: 13.758837, lng: 100.534431, name: "สำนักงานเขตราชเทวี" },
-            k_ratburana: { lat: 13.682226, lng: 100.505527, name: "สำนักงานเขตราษฎร์บูรณะ" },
-            k_latkrabang: { lat: 13.722650, lng: 100.782977, name: "สำนักงานเขตลาดกระบัง" },
-            k_latphrao: { lat: 13.805007, lng: 100.607421, name: "สำนักงานเขตลาดพร้าว" },
-            k_wangthonglang: { lat: 13.786524, lng: 100.608755, name: "สำนักงานเขตวังทองหลาง" },
-            k_watthana: { lat: 13.736440, lng: 100.585504, name: "สำนักงานเขตวัฒนา" },
-            k_suanluang: { lat: 13.733563, lng: 100.638515, name: "สำนักงานเขตสวนหลวง" },
-            k_saphansung: { lat: 13.766861, lng: 100.695328, name: "สำนักงานเขตสะพานสูง" },
-            k_samphanthawong: { lat: 13.731301, lng: 100.514088, name: "สำนักงานเขตสัมพันธวงศ์" },
-            k_sathon: { lat: 13.708849, lng: 100.528246, name: "สำนักงานเขตสาทร" },
-            k_saimai: { lat: 13.919018, lng: 100.645838, name: "สำนักงานเขตสายไหม" },
-            k_nongkhaem: { lat: 13.705578, lng: 100.348630, name: "สำนักงานเขตหนองแขม" },
-            k_nongchok: { lat: 13.855660, lng: 100.861537, name: "สำนักงานเขตหนองจอก" },
-            k_laksi: { lat: 13.887552, lng: 100.579124, name: "สำนักงานเขตหลักสี่" },
-            k_huaikhwang: { lat: 13.778550, lng: 100.574492, name: "สำนักงานเขตห้วยขวาง" }
+            k_khlongsan: { lat: 13.730741509040133, lng: 100.50929480952547, name: "สำนักงานเขตคลองสาน" },
+            k_khlongtoei: { lat: 13.708316681521467, lng: 100.58373838068914, name: "สำนักงานเขตคลองเตย" },
+            k_khlongsamwa: { lat: 13.860165600399192, lng: 100.70406455024742, name: "สำนักงานเขตคลองสามวา" },
+            k_khannayao: { lat: 13.799532708255407, lng: 100.68269082301974, name: "สำนักงานเขตคันนายาว" },
+            k_chatuchak: { lat: 13.82897100427003, lng: 100.56000780952789, name: "สำนักงานเขตจตุจักร" },
+            k_chomthong: { lat: 13.677784273358618, lng: 100.48415559233021, name: "สำนักงานเขตจอมทอง" },
+            k_donmueang: { lat: 13.910199913194878, lng: 100.59473343836571, name: "สำนักงานเขตดอนเมือง" },
+            k_dindaeng: { lat: 13.770204940567613, lng: 100.5531250561338, name: "สำนักงานเขตดินแดง" },
+            k_dusit: { lat: 13.777293468814362, lng: 100.52049636349685, name: "สำนักงานเขตดุสิต" },
+            k_talingchan: { lat: 13.77695993043829, lng: 100.45655330952664, name: "สำนักงานเขตตลิ่งชัน" },
+            k_thawiwatthana: { lat: 13.773166999665456, lng: 100.35312496091403, name: "สำนักงานเขตทวีวัฒนา" },
+            k_thungkhru: { lat: 13.611750786829985, lng: 100.50875623835837, name: "สำนักงานเขตทุ่งครุ" },
+            k_thonburi: { lat: 13.72514805873576, lng: 100.48575372116714, name: "สำนักงานเขตธนบุรี" },
+            k_bangkoknoi: { lat: 13.77103749758306, lng: 100.46805716534742, name: "สำนักงานเขตบางกอกน้อย" },
+            k_bangkokyai: { lat: 13.723630530808917, lng: 100.47624487883881, name: "สำนักงานเขตบางกอกใหญ่" },
+            k_bangkapi: { lat: 13.765895861970366, lng: 100.64766792301891, name: "สำนักงานเขตบางกะปิ" },
+            k_bangkhunthian: { lat: 13.661047595753573, lng: 100.43537016534474, name: "สำนักงานเขตบางขุนเทียน" },
+            k_bangkhen: { lat: 13.873730809452253, lng: 100.59610908069313, name: "สำนักงานเขตบางเขน" },
+            k_bangkho_laem: { lat: 13.693072173504394, lng: 100.50253959418127, name: "สำนักงานเขตบางคอแหลม" },
+            k_bangkae: { lat: 13.696371538059894, lng: 100.40900434630096, name: "สำนักงานเขตบางแค" },
+            k_bangsue: { lat: 13.80966621112243, lng: 100.5372512518558, name: "สำนักงานเขตบางซื่อ" },
+            k_bangna: { lat: 13.681482394837285, lng: 100.5921347230168, name: "สำนักงานเขตบางนา" },
+            k_bangbon: { lat: 13.634194222939719, lng: 100.36910609973191, name: "สำนักงานเขตบางบอน" },
+            k_bangphlat: { lat: 13.794185010570805, lng: 100.5050445365121, name: "สำนักงานเขตบางพลัด" },
+            k_bangrak: { lat: 13.730882231150119, lng: 100.52346233651058, name: "สำนักงานเขตบางรัก" },
+            k_buengkum: { lat: 13.785505922044095, lng: 100.66963816534775, name: "สำนักงานเขตบึงกุ่ม" },
+            k_pathumwan: { lat: 13.744997483390343, lng: 100.52224492486907, name: "สำนักงานเขตปทุมวัน" },
+            k_prawet: { lat: 13.71744122027847, lng: 100.6946318500028, name: "สำนักงานเขตประเวศ" },
+            k_pomprapsattruphai: { lat: 13.758392890671146, lng: 100.51298263466056, name: "สำนักงานเขตป้อมปราบศัตรูพ่าย" },
+            k_phayathai: { lat: 13.780071347422975, lng: 100.54264110952668, name: "สำนักงานเขตพญาไท" },
+            k_phrakhanong: { lat: 13.702678979702611, lng: 100.60203545185317, name: "สำนักงานเขตพระโขนง" },
+            k_phranakhon: { lat: 13.765096200668555, lng: 100.49870275000399, name: "สำนักงานเขตพระนคร" },
+            k_phasicharoen: { lat: 13.714971476494085, lng: 100.43701832486832, name: "สำนักงานเขตภาษีเจริญ" },
+            k_minburi: { lat: 13.813714820153285, lng: 100.73134128069172, name: "สำนักงานเขตมีนบุรี" },
+            k_yannawa: { lat: 13.696400884729542, lng: 100.54239559813526, name: "สำนักงานเขตยานนาวา" },
+            k_ratchathewi: { lat: 13.75932868484875, lng: 100.53413529233221, name: "สำนักงานเขตราชเทวี" },
+            k_ratburana: { lat: 13.682159198777404, lng: 100.50579116518605, name: "สำนักงานเขตราษฎร์บูรณะ" },
+            k_latkrabang: { lat: 13.722617551446305, lng: 100.75981666703603, name: "สำนักงานเขตลาดกระบัง" },
+            k_latphrao: { lat: 13.803734604078146, lng: 100.60743760936647, name: "สำนักงานเขตลาดพร้าว" },
+            k_wangthonglang: { lat: 13.764372639055399, lng: 100.60581709402335, name: "สำนักงานเขตวังทองหลาง" },
+            k_watthana: { lat: 13.74272787249003, lng: 100.58605399402295, name: "สำนักงานเขตวัฒนา" },
+            k_suanluang: { lat: 13.730419953767704, lng: 100.65133317868039, name: "สำนักงานเขตสวนหลวง" },
+            k_saphansung: { lat: 13.769088035479141, lng: 100.68568263635233, name: "สำนักงานเขตสะพานสูง" },
+            k_samphanthawong: { lat: 13.731787296869987, lng: 100.513955609365, name: "สำนักงานเขตสัมพันธวงศ์" },
+            k_sathon: { lat: 13.708171428061219, lng: 100.52634055169334, name: "สำนักงานเขตสาทร" },
+            k_saimai: { lat: 13.89533053928771, lng: 100.66046007868376, name: "สำนักงานเขตสายไหม" },
+            k_nongkhaem: { lat: 13.70567096367732, lng: 100.3491460498443, name: "สำนักงานเขตหนองแขม" },
+            k_nongchok: { lat: 13.856001052705624, lng: 100.86254403635414, name: "สำนักงานเขตหนองจอก" },
+            k_laksi: { lat: 13.887706205999413, lng: 100.57880964799894, name: "สำนักงานเขตหลักสี่" },
+            k_huaikhwang: { lat: 13.776820169978578, lng: 100.57932200751681, name: "สำนักงานเขตห้วยขวาง" }
         };
 
         const map = L.map('map').setView([13.7563, 100.5018], 10);
@@ -453,7 +477,13 @@
             attribution: '© OpenStreetMap contributors', maxZoom: 20
         }).addTo(map);
 
-        const officeIcon = L.icon({ iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png', iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34], className: 'marker-office' });
+        const officeIcon = L.divIcon({
+            className: 'custom-leaflet-icon marker-office',
+            html: `<div class="marker-pin-numbered" style="background-image: url('https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png'); font-size:12px;">⭐</div>`,
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34]
+        });
         let officeMarker = L.marker([13.873294, 100.551682], { icon: officeIcon, draggable: true }).addTo(map).bindPopup("<b>สำนักงาน</b>");
         
         let coordMarkers = []; let coordCount = 0; let coordRouteLayers = [];
@@ -486,7 +516,13 @@
                 lat = oPos.lat + 0.02 + (coordCount * 0.01); lng = oPos.lng - 0.02;
             }
 
-            const icon = L.icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png`, iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34] });
+            const icon = L.divIcon({
+                className: 'custom-leaflet-icon',
+                html: `<div class="marker-pin-numbered" style="background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png');">C${coordCount}</div>`,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
             const marker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(map).bindPopup(`<b>จุดประสานงาน ${coordCount}</b>`);
             marker.coordId = id;
             coordMarkers.push(marker);
@@ -611,6 +647,16 @@
             coordCount = 0;
             coordMarkers.forEach((marker) => {
                 coordCount++;
+                // อัปเดตตัวเลขบนหมุด
+                const newIcon = L.divIcon({
+                    className: 'custom-leaflet-icon',
+                    html: `<div class="marker-pin-numbered" style="background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-violet.png');">C${coordCount}</div>`,
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34]
+                });
+                marker.setIcon(newIcon);
+
                 const newTitle = `จุดประสานงาน ${coordCount}`;
                 marker.getPopup().setContent(`<b>${newTitle}</b>`);
                 const domNode = document.getElementById(marker.coordId);
@@ -629,9 +675,16 @@
                 lat = oPos.lat - 0.05 - (siteCount * 0.01); lng = oPos.lng + 0.02;
             }
 
-            const icon = L.icon({ iconUrl: `https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${colorName}.png`, iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34] });
+            const icon = L.divIcon({
+                className: 'custom-leaflet-icon',
+                html: `<div class="marker-pin-numbered" style="background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${colorName}.png');">${siteCount}</div>`,
+                iconSize: [25, 41],
+                iconAnchor: [12, 41],
+                popupAnchor: [1, -34]
+            });
             const marker = L.marker([lat, lng], { icon: icon, draggable: true }).addTo(map).bindPopup(`<b>จุดงาน ${siteCount}</b>`);
             marker.siteId = id;
+            marker.colorName = colorName; // เก็บสีเดิมไว้ เพื่อใช้อัปเดตตอนลบ
             siteMarkers.push(marker);
 
             marker.on('dragend', () => {
@@ -654,11 +707,11 @@
                     <div class="grid grid-cols-2 gap-3 mb-3">
                         <div>
                             <label class="block text-[10px] text-gray-500 uppercase font-bold">เดือนที่เริ่มงาน (เช่น เดือน 1)</label>
-                            <input type="number" id="startMonth_${id}" value="1" min="1" class="w-full px-2 py-1.5 border border-gray-300 rounded outline-none text-center" required>
+                            <input type="number" id="startMonth_${id}" value="1" min="1" class="w-full px-2 py-1.5 border border-gray-300 rounded outline-none text-center" required oninput="updateTotalSiteDuration()">
                         </div>
                         <div>
                             <label class="block text-[10px] text-gray-500 uppercase font-bold">ระยะเวลา (จำนวนวัน)</label>
-                            <input type="number" id="duration_${id}" value="30" min="1" class="w-full px-2 py-1.5 border border-gray-300 rounded outline-none text-center" required>
+                            <input type="number" id="duration_${id}" value="30" min="1" class="w-full px-2 py-1.5 border border-gray-300 rounded outline-none text-center" required oninput="updateTotalSiteDuration()">
                         </div>
                     </div>
 
@@ -672,6 +725,7 @@
                 </div>
             `;
             document.getElementById('sitesContainer').insertAdjacentHTML('beforeend', html);
+            updateTotalSiteDuration();
         }
 
         function removeSite(id) {
@@ -682,11 +736,56 @@
             siteCount = 0;
             siteMarkers.forEach((marker) => {
                 siteCount++;
+                // อัปเดตเลขบนหมุด โดยยังคงรักษาสีเดิมไว้ให้ตรงกับกล่อง UI
+                const newIcon = L.divIcon({
+                    className: 'custom-leaflet-icon',
+                    html: `<div class="marker-pin-numbered" style="background-image: url('https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-${marker.colorName}.png');">${siteCount}</div>`,
+                    iconSize: [25, 41],
+                    iconAnchor: [12, 41],
+                    popupAnchor: [1, -34]
+                });
+                marker.setIcon(newIcon);
+
                 const newTitle = `จุดงาน ${siteCount}`;
                 marker.getPopup().setContent(`<b>${newTitle}</b>`);
                 const domNode = document.getElementById(marker.siteId);
                 if(domNode) domNode.querySelector('.site-title').innerText = newTitle;
             });
+            updateTotalSiteDuration();
+        }
+
+        // ฟังก์ชันคำนวณผลรวมจำนวนวันของทุกจุดงาน (คำนวณระยะเวลาโครงการรวมสุทธิ ไม่นับวันซ้อนทับ)
+        function updateTotalSiteDuration() {
+            let daysSet = new Set();
+            siteMarkers.forEach(marker => {
+                const smInput = document.getElementById(`startMonth_${marker.siteId}`);
+                const durInput = document.getElementById(`duration_${marker.siteId}`);
+                
+                if (smInput && smInput.value && durInput && durInput.value) {
+                    const smVal = parseInt(smInput.value);
+                    const durVal = parseInt(durInput.value);
+                    
+                    if (!isNaN(smVal) && smVal > 0 && !isNaN(durVal) && durVal > 0) {
+                        const startDay = (smVal - 1) * 30; // จำลองวันเริ่มต้น (เดือน 1 = วันที่ 0)
+                        const endDay = startDay + durVal - 1;
+                        
+                        // เก็บจำนวนวันทั้งหมดลงใน Set เพื่อไม่ให้มีการนับวันซ้ำ
+                        for (let i = startDay; i <= endDay; i++) {
+                            daysSet.add(i);
+                        }
+                    }
+                }
+            });
+            
+            const total = daysSet.size;
+            const displayEl = document.getElementById('totalSiteDuration');
+            
+            if (total > 0) {
+                displayEl.innerText = `(ระยะเวลาสัญญาโครงการรวม: ${total.toLocaleString()} วัน)`;
+                displayEl.classList.remove('hidden');
+            } else {
+                displayEl.classList.add('hidden');
+            }
         }
 
         // Search API Functions
